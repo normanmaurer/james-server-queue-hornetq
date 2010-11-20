@@ -74,8 +74,7 @@ public class HornetQMailQueue extends JMSMailQueue {
                 String key = propIt.next();
                 message.setObjectProperty(key, props.get(key));
             }
-            message.setJMSPriority(msgPrio);
-            message.setLongProperty("JMSPriority", msgPrio);
+            // set the stream to read frome
             message.setObjectProperty("JMS_HQ_InputStream", new BufferedInputStream(new MimeMessageInputStream(mail.getMessage())));
             Queue q = session.createQueue(queuename);
             producer = session.createProducer(q);
@@ -90,6 +89,8 @@ public class HornetQMailQueue extends JMSMailQueue {
     @Override
     protected void populateMailMimeMessage(Message message, Mail mail) throws MessagingException, JMSException {
         BytesMessage b = (BytesMessage) message;
+       
+        // as HornetQ can read from the stream via a BytesMessage just do it
         mail.setMessage(new MimeMessageCopyOnWriteProxy(new MimeMessageWrapper(new MimeMessageInputStreamSource(message.getJMSMessageID().replaceAll(":", "_"), new BytesMessageInputStream(b)))));
     }
 
